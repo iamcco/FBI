@@ -1,4 +1,4 @@
 [submodule "buildtools"]
 	path = buildtools
-	url = https://github.com/lifehackerhansol/buildtools
+	url = https://github.com/iamcco/buildtools
 	shallow = true
