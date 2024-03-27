@@ -9,8 +9,10 @@
 #include "../core/screen.h"
 #include "../core/task/task.h"
 #include "../core/ui/ui.h"
+#include "action/action.h"
 #include "section.h"
 #include "task/uitask.h"
+#include "loader.h"
 
 #define CURRENT_KPROCESS (*(void**) 0xFFFF9004)
 
@@ -173,6 +175,19 @@ void cleanup() {
     gfxExit();
 }
 
+struct RemoteData {
+  int exit_code;
+  const char *from_3dsx_path;
+} RemoteData;
+
+void install_from_remote_done(void* data) {
+  struct RemoteData *remoteData = (struct RemoteData *)data;
+  if(remoteData->from_3dsx_path != NULL) {
+    loader_launch_file(remoteData->from_3dsx_path, NULL);
+    remoteData->exit_code = 1;
+  }
+}
+
 int main(int argc, const char* argv[]) {
     if(argc > 0 && envIsHomebrew()) {
         fs_set_3dsx_path(argv[0]);
@@ -181,7 +196,21 @@ int main(int argc, const char* argv[]) {
     init();
 
     mainmenu_open();
-    while(aptMainLoop() && ui_update());
+
+    // Install from URL if a URL was passed as an argument.
+    struct RemoteData remoteData = {0, NULL};
+    if(argc > 2) {
+      remoteData.from_3dsx_path = argv[2];
+      action_install_url("Install from url?",
+          argv[1],
+          fs_get_3dsx_path(),
+          (void *)&remoteData,
+          NULL,
+          install_from_remote_done,
+          NULL
+      );
+    }
+    while(aptMainLoop() && ui_update() && remoteData.exit_code == 0);
 
     cleanup();
 

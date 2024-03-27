@@ -1,0 +1,9 @@
+[
+  {
+    "directory": "/Users/user_name/develop/3ds/fbi",
+    "command": "/opt/devkitpro/devkitARM/bin/arm-none-eabi-gcc  -isystem /opt/devkitpro/devkitARM/arm-none-eabi/include -isystem /opt/devkitpro/libctru/include -isystem /opt/devkitpro/portlibs/3ds/include -Wl,-q -std=gnu11 -o CMakeFiles/fbi.dir/curl.c.obj -c /Users/user_name/develop/3ds/fbi/main.c",
+    "file": "/Users/user_name/develop/3ds/fbi.c",
+    "output": "CMakeFiles/fbi.dir/fbi.c.obj"
+  }
+]
+
