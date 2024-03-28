@@ -31,8 +31,10 @@ static void mainmenu_draw_top(ui_view* view, void* data, float x1, float y1, flo
     screen_draw_texture(TEXTURE_LOGO, logoX, logoY, logoWidth, logoHeight);
 }
 
+extern int exit_code;
+
 static void mainmenu_update(ui_view* view, void* data, linked_list* items, list_item* selected, bool selectedTouched) {
-    if(hidKeysDown() & KEY_START) {
+    if(hidKeysDown() & KEY_START || exit_code > 0) {
         ui_pop();
         list_destroy(view);
 

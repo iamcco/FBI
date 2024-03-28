@@ -175,16 +175,13 @@ void cleanup() {
     gfxExit();
 }
 
-struct RemoteData {
-  int exit_code;
-  const char *from_3dsx_path;
-} RemoteData;
+int exit_code = 0;
 
 void install_from_remote_done(void* data) {
-  struct RemoteData *remoteData = (struct RemoteData *)data;
-  if(remoteData->from_3dsx_path != NULL) {
-    loader_launch_file(remoteData->from_3dsx_path, NULL);
-    remoteData->exit_code = 1;
+ char *from_3dsx_path = (char *)data;
+  if(from_3dsx_path != NULL) {
+    loader_launch_file(from_3dsx_path, NULL);
+    exit_code = 1;
   }
 }
 
@@ -198,19 +195,17 @@ int main(int argc, const char* argv[]) {
     mainmenu_open();
 
     // Install from URL if a URL was passed as an argument.
-    struct RemoteData remoteData = {0, NULL};
     if(argc > 2) {
-      remoteData.from_3dsx_path = argv[2];
-      action_install_url("Install from url?",
+      action_install_url("Install From URL?",
           argv[1],
           fs_get_3dsx_path(),
-          (void *)&remoteData,
+          (void *)argv[2],
           NULL,
           install_from_remote_done,
           NULL
       );
     }
-    while(aptMainLoop() && ui_update() && remoteData.exit_code == 0);
+    while(aptMainLoop() && ui_update());
 
     cleanup();
 
