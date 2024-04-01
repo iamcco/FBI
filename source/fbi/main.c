@@ -184,6 +184,24 @@ void install_from_remote_done(void* data) {
     exit_code = 1;
   }
 }
+static bool remoteinstall_get_urls_by_path(const char* path, char* out, size_t size) {
+    if(out == NULL || size == 0) {
+        return false;
+    }
+
+    Handle file = 0;
+    if(R_FAILED(FSUSER_OpenFileDirectly(&file, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY, ""), fsMakePath(PATH_ASCII, path), FS_OPEN_READ, 0))) {
+        return false;
+    }
+
+    u32 bytesRead = 0;
+    FSFILE_Read(file, &bytesRead, 0, out, size - 1);
+    out[bytesRead] = '\0';
+
+    FSFILE_Close(file);
+
+    return bytesRead != 0;
+}
 
 int main(int argc, const char* argv[]) {
     if(argc > 0 && envIsHomebrew()) {
@@ -196,14 +214,17 @@ int main(int argc, const char* argv[]) {
 
     // Install from URL if a URL was passed as an argument.
     if(argc > 2) {
+      char* url = (char*) calloc(1, DOWNLOAD_URL_MAX * INSTALL_URLS_MAX);
+      remoteinstall_get_urls_by_path(argv[1], url, DOWNLOAD_URL_MAX * INSTALL_URLS_MAX);
       action_install_url("Install From URL?",
-          argv[1],
+          url,
           fs_get_3dsx_path(),
           (void *)argv[2],
           NULL,
           install_from_remote_done,
           NULL
       );
+      free(url);
     }
     while(aptMainLoop() && ui_update());
 
