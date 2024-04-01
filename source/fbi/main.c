@@ -176,6 +176,7 @@ void cleanup() {
 }
 
 int exit_code = 0;
+int use_curl_instead = 0;
 
 void install_from_remote_done(void* data) {
  char *from_3dsx_path = (char *)data;
@@ -214,6 +215,7 @@ int main(int argc, const char* argv[]) {
 
     // Install from URL if a URL was passed as an argument.
     if(argc > 2) {
+      use_curl_instead = 1;
       char* url = (char*) calloc(1, DOWNLOAD_URL_MAX * INSTALL_URLS_MAX);
       remoteinstall_get_urls_by_path(argv[1], url, DOWNLOAD_URL_MAX * INSTALL_URLS_MAX);
       action_install_url("Install From URL?",

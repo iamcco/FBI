@@ -20,6 +20,8 @@
 #define HTTP_TIMEOUT_SEC 15
 #define HTTP_TIMEOUT_NS ((u64) HTTP_TIMEOUT_SEC * 1000000000)
 
+extern int use_curl_instead;
+
 struct httpc_context_s {
     httpcContext httpc;
 
@@ -291,7 +293,7 @@ Result http_download_callback(const char* url, u32 bufferSize, void* userData, R
     void* buf = malloc(bufferSize);
     if(buf != NULL) {
         httpc_context context = NULL;
-        if(R_SUCCEEDED(res = httpc_open(&context, url, true))) {
+        if(!use_curl_instead && R_SUCCEEDED(res = httpc_open(&context, url, true))) {
             u32 dlSize = 0;
             if(R_SUCCEEDED(res = httpc_get_size(context, &dlSize))) {
                 if(progress != NULL) {
@@ -316,7 +318,7 @@ Result http_download_callback(const char* url, u32 bufferSize, void* userData, R
                     res = closeRes;
                 }
             }
-        } else if(res == R_HTTP_TLS_VERIFY_FAILED) {
+        } else if(use_curl_instead || res == R_HTTP_TLS_VERIFY_FAILED) {
             res = 0;
 
             CURL* curl = curl_easy_init();
@@ -326,7 +328,11 @@ Result http_download_callback(const char* url, u32 bufferSize, void* userData, R
                 curl_easy_setopt(curl, CURLOPT_URL, url);
                 curl_easy_setopt(curl, CURLOPT_BUFFERSIZE, bufferSize);
                 curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "");
-                curl_easy_setopt(curl, CURLOPT_USERAGENT, HTTP_USER_AGENT);
+                if (use_curl_instead) {
+                  curl_easy_setopt(curl, CURLOPT_USERAGENT, "pan.baidu.com");
+                } else {
+                  curl_easy_setopt(curl, CURLOPT_USERAGENT, HTTP_USER_AGENT);
+                }
                 curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, (long) HTTP_TIMEOUT_SEC);
                 curl_easy_setopt(curl, CURLOPT_MAXREDIRS, (long) HTTP_MAX_REDIRECTS);
                 curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
