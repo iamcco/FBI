@@ -25,7 +25,7 @@ DESCRIPTION := Open source title manager.
 AUTHOR := Steveice10
 
 PRODUCT_CODE := CTR-P-CFBI
-UNIQUE_ID := 0xF8001
+UNIQUE_ID := 0xF8999
 
 ICON_FLAGS := --flags visible,ratingrequired,recordusage --cero 153 --esrb 153 --usk 153 --pegigen 153 --pegiptr 153 --pegibbfc 153 --cob 153 --grb 153 --cgsrr 153
 
